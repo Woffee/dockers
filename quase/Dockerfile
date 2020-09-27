@@ -17,8 +17,4 @@ RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.7.12.1-Linux-x86_64.sh
      /opt/conda/bin/conda clean -ya
 ENV PATH /opt/conda/bin:$PATH
 
-
-RUN pip install pandas gensim sklearn openpyxl==3.0.1 matplotlib pycocotools opencv-python h5py && \
-    apt-get update && apt-get install -y --no-install-recommends libsm6 libglib2.0-0 libxrender1 libxext6 && \
-    rm -rf /var/lib/apt/lists/*
-
+RUN pip install pandas gensim sklearn cvxpy matplotlib nltk pytorch-pretrained-bert==0.6.2 allennlp==0.9.0
