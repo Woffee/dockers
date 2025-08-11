@@ -3,11 +3,11 @@
 
 使用 docker 后台运行：
 
-sudo docker compose up -d
+    sudo docker compose up -d
 
 想要停止的话：
 
-sudo docker compose down
+    sudo docker compose down
 
 
 # 我在用 docker 启动的 vscode server 中修改了文件，保存时提示我没有权限。这怎么解决？

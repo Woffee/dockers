@@ -1,23 +1,24 @@
 ## 太长不看
 
+2025/08/10
+
 第一次运行，build image：
 
-docker build -t mytorch:2.0.1-cu117 .
+    docker build -t mytorch:2.0.1-cu117 .
 
 之后只要运行
 
-docker compose up trainer # 默认执行 python train.py
+    docker compose up trainer # 默认执行 python train.py
 
 或者 (仅启动 JupyterLab)
 
-sudo docker compose up lab    
-sudo docker compose up -d lab # 长期运行
-
-2025/08/10
+    sudo docker compose up lab    
+    sudo docker compose up -d lab # 长期运行
 
 ## 详细构建过程
 
-1) gpu_check.py（复制到镜像里）
+### gpu_check.py
+
 ```
 # gpu_check.py
 import torch, subprocess, re
@@ -61,7 +62,7 @@ else:
     print("No GPU detected or CUDA is not available.")
 ```
 
-2) Dockerfile（把脚本打进镜像）
+### Dockerfile
 
 你的驱动上限是 CUDA 11.8；下面默认用 PyTorch 2.0.1 + CUDA 11.7 的官方镜像，稳妥。需要别的版本只改 ARG BASE_IMAGE。
 
@@ -77,31 +78,37 @@ WORKDIR /workspace
 COPY gpu_check.py /usr/local/bin/gpu_check.py
 
 # 可选：预装你常用包（按需增删）
-# RUN pip install -U pip && pip install jupyterlab transformers pandas matplotlib
+RUN pip install -U pip && pip install jupyterlab transformers pandas matplotlib
 
 # 默认进入 bash；需要时可直接执行 gpu_check.py 或训练脚本
 CMD ["bash"]
 
-构建：
+
 ```
 
-docker build -t mytorch:2.0.1-cu117 .
+构建：
 
-3) 直接运行检查
+    docker build -t mytorch:2.0.1-cu117 .
 
+### 直接运行
+
+```
 docker run --gpus all --rm -it \
   -v "$PWD":/workspace -w /workspace \
   mytorch:2.0.1-cu117 \
   python /usr/local/bin/gpu_check.py
+```
 
-4) 训练你的 train.py
+### 训练你的 Model (train.py)
 
+```
 docker run --gpus all --rm -it \
   -v "$PWD":/workspace -w /workspace --ipc=host \
   mytorch:2.0.1-cu117 \
   python train.py
+```
 
-5) docker compose（一次配置，随时起）
+### docker compose（一次配置，随时起）
 
 docker-compose.yaml：
 
@@ -157,9 +164,10 @@ docker compose up trainer
 
 # 或仅启动 JupyterLab
 docker compose up lab
+docker compose up -d lab # 长久运行
 ```
 
-6) 想临时用 JupyterLab？
+### 临时用 JupyterLab
 
 ```
 docker run --gpus all -it --rm -p 8888:8888 \
