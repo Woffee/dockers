@@ -1,0 +1,46 @@
+services:
+  trainer:
+    image: mytorch:2.0.1-cu117
+    working_dir: /workspace
+    command: bash -lc "python /usr/local/bin/gpu_check.py && python train.py"
+    volumes:
+      - ./:/workspace
+      - pip_cache:/root/.cache/pip
+      - hf_cache:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all           # 可改为具体数量，如 1
+              capabilities: [gpu]  # 必填
+
+  lab:
+    image: mytorch:2.0.1-cu117
+    working_dir: /workspace
+    environment:
+      JUPYTER_PASSWORD_HASH: ${JUPYTER_PASSWORD_HASH}
+    command: >
+      bash -lc "pip install -q jupyterlab &&
+                python /usr/local/bin/gpu_check.py &&
+                jupyter lab"
+    ports: ["8888:8888"]
+    volumes:
+      - /data2/woffee/www/:/workspace
+      - ./jupyter_server_config.py:/root/.jupyter/jupyter_server_config.py:ro
+      - pip_cache:/root/.cache/pip
+      - hf_cache:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  pip_cache: {}
+  hf_cache: {}
+
