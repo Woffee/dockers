@@ -1,0 +1,13 @@
+# 使用 docker compose 长期运行 vscode server
+# 运行 docker compose up -d 即可
+
+services:
+  code:
+    image: codercom/code-server:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /data2/woffee/www/:/home/coder/project
+    user: "1011:1011"
+    environment:
+      PASSWORD: MySecret123   # 或 HASHED_PASSWORD
